@@ -1,8 +1,10 @@
 name: Docker Compose Run
 
 on:
+  push:
+    branches: [ "master" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -27,5 +29,9 @@ jobs:
       working-directory: ./regtest
 
     - name: Run Docker Compose in arc
-      run: docker-compose up -d
+      run: docker-compose up -d arc
+      working-directory: ./arc
+
+    - name: Run Tests and Show Logs
+      run: docker-compose run --rm tests
       working-directory: ./arc

@@ -14,4 +14,5 @@ do
 done
 
 >&2 echo "Server is up - executing command"
+
 exec $cmd
