@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/Taal_Orchestrator/common/utils"
 	"github.com/ordishs/go-bitcoin"
 	"github.com/stretchr/testify/require"
 )
@@ -188,7 +187,7 @@ func init() {
 
 }
 
-func getNewWalletAddress(t *testing.T) (scripthash, address, privateKey string) {
+func getNewWalletAddress(t *testing.T) (address, privateKey string) {
 
 	fmt.Println("this is getting called")
 	t.Helper()
@@ -207,7 +206,7 @@ func getNewWalletAddress(t *testing.T) (scripthash, address, privateKey string) 
 	require.NoError(t, err)
 	address = strings.TrimSpace(out.String())
 
-	scripthash, err = utils.AddressToScriptHash(address, false)
+	// scripthash, err = utils.AddressToScriptHash(address, false)
 	require.NoError(t, err)
 
 	// Dump the private key of the wallet

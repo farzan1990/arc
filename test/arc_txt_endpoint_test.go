@@ -28,9 +28,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestHttpPost(t *testing.T) {
-	scripthash, address, privateKey := getNewWalletAddress(t)
+	address, privateKey := getNewWalletAddress(t)
 
-	fmt.Println(scripthash)
 	fmt.Println(address)
 
 	sendToAddress(t, address, 0.01)
