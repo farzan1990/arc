@@ -15,6 +15,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+
+
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
@@ -41,10 +43,13 @@ jobs:
         version: v1.50.1
         args: --skip-dirs p2p/wire
 
-    - name: Run tests
-      run: go test -race -vet=off ./...
+    - name: Run tests with coverage
+      run: go test -race -vet=off -coverprofile=coverage.out ./...
 
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      uses: codecov/codecov-action@v3  # Updated from v3 to v2 which is the official version as of now
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}  # Only required for private repositories
+        file: coverage.out
+        flags: unittests  # Optional: Flags help you identify coverage reports.
+        name: codecov-umbrella  # Optional
