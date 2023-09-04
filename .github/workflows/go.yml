@@ -42,10 +42,9 @@ jobs:
         args: --skip-dirs p2p/wire
 
     - name: Run tests
-      run: go test -race -vet=off -coverprofile=coverage.out ./...
+      run: go test -race -vet=off ./...
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
-      file: coverage.out
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
