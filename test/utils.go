@@ -225,7 +225,7 @@ func getNewWalletAddress(t *testing.T) (address, privateKey string) {
 	err = aliasCmd.Run()
 	require.NoError(t, err)
 
-	t.Logf("new wallet created: %s: %s", address)
+	t.Logf("new wallet created: %s", address)
 
 	return
 }
