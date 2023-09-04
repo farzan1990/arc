@@ -43,7 +43,7 @@ type NodeUnspentUtxo struct {
 //      t.Fatal(err)
 //  }
 
-//  b, err := btgo.New("localhost", 18332, "bitcoin", "bitcoin", false)
+//  b, err := btgo.New("node2", 18332, "bitcoin", "bitcoin", false)
 //  if err != nil {
 //      t.Fatal(err)
 //  }
@@ -160,7 +160,10 @@ var (
 func init() {
 
 	var err error
-	bitcoind, err = bitcoin.New("localhost", 18332, "bitcoin", "bitcoin", false)
+	bitcoind, err = bitcoin.New("node2", 18332, "bitcoin", "bitcoin", false)
+	if err != nil {
+		log.Fatalln("Failed to create bitcoind instance:", err)
+	}
 
 	info, err := bitcoind.GetInfo()
 	if err != nil {
@@ -191,7 +194,7 @@ func getNewWalletAddress(t *testing.T) (address, privateKey string) {
 
 	fmt.Println("this is getting called")
 	t.Helper()
-	cmd := exec.Command("bash", "-c", "bitcoin-cli -rpcconnect=localhost -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin getnewaddress")
+	cmd := exec.Command("bash", "-c", "bitcoin-cli -rpcconnect=node2 -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin getnewaddress")
 	fmt.Println("Executing:", cmd.String())
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -210,7 +213,7 @@ func getNewWalletAddress(t *testing.T) (address, privateKey string) {
 	require.NoError(t, err)
 
 	// Dump the private key of the wallet
-	dumpCmd := exec.Command("bash", "-c", fmt.Sprintf("bitcoin-cli -rpcconnect=localhost -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin dumpprivkey %s", address))
+	dumpCmd := exec.Command("bash", "-c", fmt.Sprintf("bitcoin-cli -rpcconnect=node2 -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin dumpprivkey %s", address))
 	var dumpOut bytes.Buffer
 	dumpCmd.Stdout = &dumpOut
 	err = dumpCmd.Run()
@@ -219,7 +222,7 @@ func getNewWalletAddress(t *testing.T) (address, privateKey string) {
 	privateKey = strings.TrimSpace(dumpOut.String())
 
 	// Create an account alias for the wallet address
-	aliasCmd := exec.Command("bash", "-c", fmt.Sprintf("bitcoin-cli -rpcconnect=localhost -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin setaccount %s %s", address, address))
+	aliasCmd := exec.Command("bash", "-c", fmt.Sprintf("bitcoin-cli -rpcconnect=node2 -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin setaccount %s %s", address, address))
 	var aliasOut bytes.Buffer
 	aliasCmd.Stdout = &aliasOut
 	err = aliasCmd.Run()
@@ -233,12 +236,22 @@ func getNewWalletAddress(t *testing.T) (address, privateKey string) {
 func sendToAddress(t *testing.T, address string, bsv float64) (txID string) {
 	t.Helper()
 
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("bitcoin-cli -rpcconnect=localhost -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin sendtoaddress %s %f", address, bsv))
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	require.NoError(t, err)
+	cmdStr := fmt.Sprintf("bitcoin-cli -rpcconnect=node2 -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin sendtoaddress %s %f", address, bsv)
+	fmt.Println("Executing command:", cmdStr) // Log the exact command being executed
 
+	cmd := exec.Command("bash", "-c", cmdStr)
+
+	var out, stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr // Capture standard error
+
+	err := cmd.Run()
+
+	// Print the output and error messages
+	fmt.Println("Output:", out.String())
+	fmt.Println("Error:", stderr.String())
+
+	require.NoError(t, err)
 	txID = strings.TrimSpace(out.String())
 
 	t.Logf("sent %f to %s: %s", bsv, address, txID)
@@ -271,7 +284,7 @@ func execCommandGenerate(t *testing.T, amount uint64, address string) string {
 
 	cmd := exec.Command(
 		"bitcoin-cli",
-		"-rpcconnect=localhost",
+		"-rpcconnect=node2",
 		"-rpcport=18332",
 		"-rpcuser=bitcoin",
 		"-rpcpassword=bitcoin",
@@ -304,7 +317,7 @@ func getUnspentUtxos(t *testing.T, address string) []NodeUnspentUtxo {
 	t.Helper()
 
 	// Run the command
-	cmd := exec.Command("bash", "-c", fmt.Sprintf(`bitcoin-cli -rpcconnect=localhost -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin listunspent 1 9999999 '["%s"]'`, address))
+	cmd := exec.Command("bash", "-c", fmt.Sprintf(`bitcoin-cli -rpcconnect=node2 -rpcport=18332 -rpcuser=bitcoin -rpcpassword=bitcoin listunspent 1 9999999 '["%s"]'`, address))
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
