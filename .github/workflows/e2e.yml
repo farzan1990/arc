@@ -1,4 +1,4 @@
-name: Docker Compose Run
+name: Arc E2E Regtest
 
 on:
   push:
@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    
     - name: Check out arc repo
       uses: actions/checkout@v2
       with:
